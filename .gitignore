@@ -5,9 +5,7 @@ backend/target/
 *.class
 
 # Maven
-backend/.mvn/
-backend/mvnw
-backend/mvnw.cmd
+backend/.mvn/wrapper/maven-wrapper.jar
 
 # Node.js
 node_modules/
