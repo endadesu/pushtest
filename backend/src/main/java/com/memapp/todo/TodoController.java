@@ -11,15 +11,15 @@ import java.util.List;
 @CrossOrigin
 public class TodoController {
 
-    private final TodoRepository repository;
+    private final TodoMapper mapper;
 
-    public TodoController(TodoRepository repository) {
-        this.repository = repository;
+    public TodoController(TodoMapper mapper) {
+        this.mapper = mapper;
     }
 
     @GetMapping
     public List<Todo> getAll() {
-        return repository.findAll();
+        return mapper.findAll();
     }
 
     @PostMapping
@@ -28,25 +28,27 @@ public class TodoController {
             return ResponseEntity.badRequest().build();
         }
         Todo todo = new Todo(request.getText().trim());
-        return ResponseEntity.status(HttpStatus.CREATED).body(repository.save(todo));
+        mapper.insert(todo);
+        return ResponseEntity.status(HttpStatus.CREATED).body(todo);
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Todo> update(@PathVariable long id, @RequestBody Todo request) {
-        return repository.findById(id)
+        return mapper.findById(id)
                 .map(todo -> {
                     todo.setCompleted(request.isCompleted());
-                    return ResponseEntity.ok(repository.save(todo));
+                    mapper.update(todo);
+                    return ResponseEntity.ok(todo);
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable long id) {
-        if (!repository.existsById(id)) {
+        int deleted = mapper.deleteById(id);
+        if (deleted == 0) {
             return ResponseEntity.notFound().build();
         }
-        repository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }
